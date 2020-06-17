@@ -1,3 +1,6 @@
+# pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+# https://developers.google.com/calendar/quickstart/python
+
 from __future__ import print_function
 import datetime
 import pickle
