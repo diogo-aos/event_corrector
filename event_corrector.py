@@ -9,11 +9,11 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import time
-
+import json
 
 TOKEN_PATH = 'token.pickle'
-APP_CREDENTIALS_PATH = 'credentials_akins_daos.json'
-CALENDAR_CONFIG_PATH = 'calendar_tags.pkl'
+APP_CREDENTIALS_PATH = 'app_credentials.json'
+CALENDAR_CONFIG_PATH = 'calendar_tags.json'
 FETCH_N_EVENTS = 100
 ORIGIN_CALENDAR = 'primary'
 # If modifying these scopes, delete the file token.pickle.
@@ -72,8 +72,8 @@ def correct_calendar(calendars, service):
 
 def get_calendar_config(path, service):
     if path is not None and os.path.exists(path):
-        with open(path, 'rb') as f:
-            calendars = pickle.load(f)
+        with open(path, 'r') as f:
+            calendars = json.load(f)
             for c_name in calendars.keys():
                 print(c_name, calendars[c_name]['tags'])
             return calendars
@@ -84,16 +84,8 @@ def get_calendar_config(path, service):
             calendars[calendar.get('summary')] = {'id': calendar.get('id'), 'tags': []}
             print(calendar.get('summary'))
         
-        # specify tags for calendars here
-        calendars['CAL']['tags'].extend(['cal'])
-        calendars['INT']['tags'].extend(['int', 'internato'])
-        calendars['CIAFA']['tags'].extend(['lab', 'ciafa'])
-        calendars['Travel']['tags'].extend(['travel', 'trip'])
-        calendars['J+D']['tags'].extend(['joana', 'jd'])
-        calendars['FAP DS']['tags'].extend(['fap'])
-        
-        with open(path, 'wb') as f:
-            calendars = pickle.dump(calendars, f)
+        with open(path, 'w') as f:
+            calendars = json.dump(calendars, f, indent=4)
         return calendars
 
 def main():
