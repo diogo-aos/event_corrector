@@ -68,7 +68,7 @@ def correct_calendar(calendars, service):
         if calendar_id == 'primary':
             continue
         service.events().move(calendarId='primary', eventId=event['id'], destination=calendar_id).execute()
-        print('changed event {} to calendar {}'.format(event['summary'], calendar_id))
+        print('changed event {} to calendar {}'.format(event['summary'].decode('utf-8'), calendar_id))
 
 def get_calendar_config(path, service):
     if path is not None and os.path.exists(path):
