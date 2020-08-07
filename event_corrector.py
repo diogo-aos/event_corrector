@@ -10,16 +10,31 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import time
 import json
+import argparse
 
-TOKEN_PATH = 'token.pickle'
-APP_CREDENTIALS_PATH = 'app_credentials.json'
-CALENDAR_CONFIG_PATH = 'calendar_tags.json'
+parser = argparse.ArgumentParser(description='Parse and categorize Google Calendar events.')
+parser.add_argument('--token_file', type=str, default='token.pickle',
+                    help='path for the token file')
+parser.add_argument('--app_credentials_file', type=str, default='app_credentials.json',
+                    help='path for the app credentials json file')
+
+parser.add_argument('--calendar_tags', type=str, default='calendar_tags.json',
+                    help='path for the calendar tags json file')
+
+parser.add_argument('--logfile', type=str, help="path to logfile")
+args = parser.parse_args()
+
+
+TOKEN_PATH = args.token_file
+APP_CREDENTIALS_PATH = args.app_credentials_file
+CALENDAR_CONFIG_PATH = args.calendar_tags
 FETCH_N_EVENTS = 100
 ORIGIN_CALENDAR = 'primary'
+
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/calendar.events']
 
-
+print(datetime.datetime.now())
 
 def get_credentials():
     creds = None
@@ -68,7 +83,7 @@ def correct_calendar(calendars, service):
         if calendar_id == 'primary':
             continue
         service.events().move(calendarId='primary', eventId=event['id'], destination=calendar_id).execute()
-        print('changed event {} to calendar {}'.format(event['summary'].decode('utf-8'), calendar_id))
+        print('changed event {} to calendar {}'.format(event['summary'], calendar_id))
 
 def get_calendar_config(path, service):
     if path is not None and os.path.exists(path):

@@ -16,3 +16,7 @@ e.g. to run script every minute
 * * * * * cd /absolute/path/script/directory && python3 event_corrector.py
 
 service cron reload 
+
+
+# todo
+permitir tags para partilha de eventos com pessoas
