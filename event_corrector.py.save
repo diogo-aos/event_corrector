@@ -13,21 +13,19 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser(description='Parse and categorize Google Calendar events.')
-parser.add_argument('--token_file', type=str, default='token.pickle',
-                    help='path for the token file')
-parser.add_argument('--app_credentials_file', type=str, default='app_credentials.json',
-                    help='path for the app credentials json file')
-
-parser.add_argument('--calendar_tags', type=str, default='calendar_tags.json',
-                    help='path for the calendar tags json file')
-
+parser.add_argument('tokenfile', type=str,
+                    help='path for the token pickle file')
+parser.add_argument('app_credentials', type=str,
+                    help='path for the app_credentials json file')
+parser.add_argument('calendar_config', type=str,
+                    help='path for the calendar config json file')
 parser.add_argument('--logfile', type=str, help="path to logfile")
 args = parser.parse_args()
 
 
-TOKEN_PATH = args.token_file
-APP_CREDENTIALS_PATH = args.app_credentials_file
-CALENDAR_CONFIG_PATH = args.calendar_tags
+TOKEN_PATH = args.tokenfile
+APP_CREDENTIALS_PATH = 'app_credentials.json'
+CALENDAR_CONFIG_PATH = 'calendar_tags.json'
 FETCH_N_EVENTS = 100
 ORIGIN_CALENDAR = 'primary'
 
@@ -51,8 +49,7 @@ def get_credentials():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 APP_CREDENTIALS_PATH, SCOPES)
-            creds = flow.run_console()
-            #creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open(TOKEN_PATH, 'wb') as token:
             pickle.dump(creds, token)
@@ -80,22 +77,11 @@ def correct_calendar(calendars, service):
     if not events:
         print('No upcoming events found.')
     for event in events:
-        print('processing event: {}'.format(event['summary'].encode('utf-8')))
         calendar_id = parse_event(event['summary'], calendars)
         if calendar_id == 'primary':
             continue
-        print('moving event {} to calendar {}'.format(event['summary'].encode('utf-8'),calendar_id))
-        event_id = event['id']
-        if 'recurringEventId' in event:
-            print('Is recurring event - changing all events.')
-            event_id = event['recurringEventId']
-        try:
-            service.events().move(calendarId='primary', eventId=event_id, destination=calendar_id).execute()
-        except Exception as e:
-            print(e)
-        print('changed event {} to calendar {}'.format(event['summary'].encode('utf-8'), calendar_id))
-
-
+        service.events().move(calendarId='primary', eventId=event['id'], destination=calendar_id).execute()
+        print('changed event {} to calendar {}'.format(event['summary'], calendar_id))
 
 def get_calendar_config(path, service):
     if path is not None and os.path.exists(path):
